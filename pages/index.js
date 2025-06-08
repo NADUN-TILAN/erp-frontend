@@ -1,5 +1,6 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import NavBar from "../components/NavBar";
 
 export default function Home() {
   const { data: session } = useSession();
