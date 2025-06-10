@@ -5,8 +5,9 @@ const navLinks = [
   { href: "/", label: "Dashboard" },
   { href: "/inventory", label: "Inventory" },
   { href: "/sales", label: "Sales" },
-  { href: "/orders", label: "Orders" }, // fixed to lowercase
+  { href: "/orders", label: "Orders" },
   { href: "/reports", label: "Reports" },
+  { href: "/users", label: "Users" }, // Added Users nav link
 ];
 
 function NavBar() {
