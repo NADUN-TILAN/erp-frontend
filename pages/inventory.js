@@ -1,76 +1,63 @@
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
+
+const API_URL = "http://localhost:5001/api/product";
 
 export default function InventoryPage() {
   const { data: session } = useSession();
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ sku: "", name: "", quantity: "", price: "" });
-  const [editId, setEditId] = useState(null);
+  const [form, setForm] = useState({ sku: "", name: "", quantity: 0, price: 0 });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/product")
+    fetch(API_URL)
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then(setProducts)
+      .catch(console.error);
   }, []);
 
   const refreshProducts = () => {
-    fetch("http://localhost:5001/api/product")
+    fetch(API_URL)
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then(setProducts);
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editId) {
-      // Edit mode
-      await fetch(`http://localhost:5001/api/product/${editId}`, {
+    if (editingId) {
+      // Update
+      await fetch(`${API_URL}/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sku: form.sku,
-          name: form.name,
-          quantity: Number(form.quantity),
-          price: Number(form.price),
-        }),
+        body: JSON.stringify(form),
       });
-      setEditId(null);
     } else {
-      // Add mode
-      await fetch("http://localhost:5001/api/product", {
+      // Add
+      await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sku: form.sku,
-          name: form.name,
-          quantity: Number(form.quantity),
-          price: Number(form.price),
-        }),
+        body: JSON.stringify(form),
       });
     }
-    setForm({ sku: "", name: "", quantity: "", price: "" });
     refreshProducts();
-  };
-
-  const handleDelete = async (id) => {
-    await fetch(`http://localhost:5001/api/product/${id}`, {
-      method: "DELETE",
-    });
-    refreshProducts();
+    setForm({ sku: "", name: "", quantity: 0, price: 0 });
+    setEditingId(null);
   };
 
   const handleEdit = (product) => {
-    setEditId(product.id);
-    setForm({
-      sku: product.sku,
-      name: product.name,
-      quantity: product.quantity,
-      price: product.price,
-    });
+    setForm(product);
+    setEditingId(product.id);
+  };
+
+  const handleDelete = async (id) => {
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    setProducts(products.filter((p) => p.id !== id));
   };
 
   if (!session) return <p className="text-center mt-10">Please sign in to view inventory.</p>;
@@ -131,15 +118,15 @@ export default function InventoryPage() {
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          {editId ? "Update" : "Add"}
+          {editingId ? "Update" : "Add"} Product
         </button>
-        {editId && (
+        {editingId && (
           <button
             type="button"
             className="bg-gray-400 text-white px-4 py-2 rounded"
             onClick={() => {
-              setEditId(null);
-              setForm({ sku: "", name: "", quantity: "", price: "" });
+              setEditingId(null);
+              setForm({ sku: "", name: "", quantity: 0, price: 0 });
             }}
           >
             Cancel
@@ -158,22 +145,22 @@ export default function InventoryPage() {
           </tr>
         </thead>
         <tbody>
-          {products.map(product => (
-            <tr key={product.id}>
-              <td className="border px-4 py-2">{product.sku}</td>
-              <td className="border px-4 py-2">{product.name}</td>
-              <td className="border px-4 py-2">{product.quantity}</td>
-              <td className="border px-4 py-2">${product.price}</td>
+          {products.map((p) => (
+            <tr key={p.id}>
+              <td className="border px-4 py-2">{p.sku}</td>
+              <td className="border px-4 py-2">{p.name}</td>
+              <td className="border px-4 py-2">{p.quantity}</td>
+              <td className="border px-4 py-2">${p.price}</td>
               <td className="border px-4 py-2 flex gap-2">
                 <button
                   className="bg-yellow-400 px-2 py-1 rounded text-white"
-                  onClick={() => handleEdit(product)}
+                  onClick={() => handleEdit(p)}
                 >
                   Edit
                 </button>
                 <button
                   className="bg-red-600 px-2 py-1 rounded text-white"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDelete(p.id)}
                 >
                   Delete
                 </button>
