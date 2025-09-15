@@ -1,13 +1,5 @@
-import NextAuth from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
-import Link from "next/link";
-
-export default NextAuth({
-  providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
-  ],
-  secret: process.env.NEXTAUTH_SECRET,
-});
+// Duplicate file was conflicting with [...nextauth].js route.
+// Keeping empty to avoid route collision. You can safely delete this file.
+export default function handler(req, res) {
+  res.status(404).json({ error: "Not Found" });
+}

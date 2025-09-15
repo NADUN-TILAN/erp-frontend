@@ -1,5 +1,6 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 
 export default function Home() {
@@ -20,53 +21,83 @@ export default function Home() {
     default: "Unable to sign in.",
   };
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Keep hooks before any conditional returns to avoid hook order changes
+  useEffect(() => {
+    if (session) {
+      router.replace("/dashboard");
+    }
+  }, [session, router]);
+
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-md flex flex-col items-center">
-          <h1 className="text-3xl font-extrabold text-indigo-700 mb-2 tracking-tight">
-            ERP System
-          </h1>
-          <p className="text-gray-500 mb-6 text-center">
-            Sign in to access your dashboard
-          </p>
-          {/* Show error message if present */}
-          {error && (
-            <div className="mb-4 w-full text-center text-red-600 font-semibold">
-              {errorMessages[error] || errorMessages.default}
-            </div>
-          )}
-          <button
-            onClick={() => signIn("github")}
-            className="flex items-center gap-2 px-6 py-3 mb-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            {/* GitHub SVG */}
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-white">
+        <NavBar />
+        <main className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-12 md:grid-cols-2">
+          <section className="rounded-2xl border border-indigo-100 bg-white/90 p-8 shadow">
+            <h1 className="text-3xl font-extrabold text-indigo-700 tracking-tight">Welcome to ERP System</h1>
+            <p className="mt-2 text-gray-600">Manage Inventory, Orders, Users, and Reports in one place.</p>
+            <ul className="mt-6 space-y-2 text-gray-700">
+              <li>• Fast inventory updates and product management</li>
+              <li>• Order tracking with Kafka-powered events</li>
+              <li>• Secure authentication with sessions</li>
+            </ul>
+          </section>
+          <section className="rounded-2xl border border-gray-200 bg-white/90 p-8 shadow">
+            <h2 className="text-xl font-semibold text-gray-900">Sign in</h2>
+            <p className="mt-1 text-sm text-gray-500">Use your credentials. Try admin / admin.</p>
+            {error && (
+              <div className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                {errorMessages[error] || errorMessages.default}
+              </div>
+            )}
+            <form
+              className="mt-5 space-y-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const res = await signIn("credentials", {
+                  redirect: false,
+                  username,
+                  password,
+                  callbackUrl: "/dashboard",
+                });
+                if (!res || res.error) {
+                  // Surface generic error via query or inline message
+                  alert("Sign in failed. Check your credentials.");
+                }
+              }}
             >
-              <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.56-.29-5.26-1.28-5.26-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98.01 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.67.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z" />
-            </svg>
-            Sign in with GitHub
-          </button>
-          <button
-            onClick={() => signIn("google")}
-            className="flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow transition"
-          >
-            {/* Google SVG */}
-            <svg className="w-5 h-5" viewBox="0 0 48 48">
-              <g>
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.23l6.87-6.87C36.68 2.36 30.74 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.99 6.21C12.36 13.97 17.73 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.1 24.55c0-1.64-.15-3.22-.42-4.74H24v9.01h12.42c-.54 2.91-2.18 5.37-4.65 7.03l7.19 5.6C43.99 37.13 46.1 31.37 46.1 24.55z"/>
-                <path fill="#FBBC05" d="M10.68 28.3a14.48 14.48 0 0 1 0-8.6l-7.99-6.21A23.97 23.97 0 0 0 0 24c0 3.97.96 7.73 2.69 11.09l7.99-6.21z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.15 15.9-5.85l-7.19-5.6c-2.01 1.35-4.59 2.15-8.71 2.15-6.27 0-11.64-4.47-13.32-10.49l-7.99 6.21C6.73 42.2 14.82 48 24 48z"/>
-                <path fill="none" d="M0 0h48v48H0z"/>
-              </g>
-            </svg>
-            Sign in with Google
-          </button>
-        </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-white font-semibold shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              >
+                Sign in
+              </button>
+              <p className="text-xs text-gray-500">Hint: admin / admin</p>
+            </form>
+          </section>
+        </main>
       </div>
     );
   }
