@@ -96,6 +96,20 @@ export default function Home() {
               </button>
               <p className="text-xs text-gray-500">Hint: admin / admin</p>
             </form>
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              <button
+                onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-white font-semibold shadow hover:bg-black/90"
+              >
+                <span>Continue with GitHub</span>
+              </button>
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-white font-semibold shadow hover:bg-red-600"
+              >
+                <span>Continue with Google</span>
+              </button>
+            </div>
           </section>
         </main>
       </div>
