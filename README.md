@@ -38,16 +38,25 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Images:
 
-![image](https://github.com/user-attachments/assets/d3b8c61c-8bb6-4cd1-a84b-95a33bf47f24)
+<img width="1471" height="768" alt="image" src="https://github.com/user-attachments/assets/36a7c391-7828-4572-a0c3-7a5decf9c721" />
 
-![image](https://github.com/user-attachments/assets/c60e9c1e-a032-44da-a83d-0ade1f8b61bc)
 
-![image](https://github.com/user-attachments/assets/2a3b6708-04ba-4d0f-84b1-10b53a76b7a5)
+<img width="1332" height="712" alt="image" src="https://github.com/user-attachments/assets/0b5d436b-703e-4cb5-ad71-8ece6d9d33ed" />
 
-![image](https://github.com/user-attachments/assets/ef6153b9-46d0-4516-a468-9a7632fb4754)
 
-![image](https://github.com/user-attachments/assets/71f7e6f3-04fe-4427-8605-f48a62130d77)
+<img width="1449" height="814" alt="image" src="https://github.com/user-attachments/assets/451ca0a6-faa1-4ce3-b190-177188ae9068" />
 
+
+<img width="1526" height="906" alt="image" src="https://github.com/user-attachments/assets/f3b22426-98f9-447d-8614-5f7056b3ab6c" />
+
+
+<img width="1465" height="606" alt="image" src="https://github.com/user-attachments/assets/f9041367-2a18-4ad7-b246-d32153ae5bdf" />
+
+
+<img width="1472" height="842" alt="image" src="https://github.com/user-attachments/assets/db3e6113-8d3c-4176-b4e7-74e51e361d26" />
+
+
+<img width="1469" height="958" alt="image" src="https://github.com/user-attachments/assets/6f3b14fe-3403-4d04-8924-74123528bdc3" />
 
 
 
