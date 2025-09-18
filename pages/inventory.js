@@ -12,6 +12,7 @@ export default function InventoryPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -28,6 +29,22 @@ export default function InventoryPage() {
       .then((data) => setProducts(Array.isArray(data) ? data : []));
   };
 
+  const showMessage = (message, type = "success") => {
+    if (type === "success") {
+      setSuccessMessage(message);
+      setError("");
+    } else {
+      setError(message);
+      setSuccessMessage("");
+    }
+    
+    // Auto-hide message after 3 seconds
+    setTimeout(() => {
+      setSuccessMessage("");
+      setError("");
+    }, 3000);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
@@ -36,43 +53,100 @@ export default function InventoryPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
+    
     const payload = {
       sku: form.sku.trim(),
       name: form.name.trim(),
       quantity: Number(form.quantity) || 0,
       price: Number(form.price) || 0,
     };
+    
     try {
       if (editingId) {
-        await fetch(`${API_URL}/${editingId}`, {
+        console.log(`Attempting to update product with ID: ${editingId}`);
+        console.log(`PUT URL: ${API_URL}/${editingId}`);
+        console.log(`Payload:`, payload);
+        
+        const response = await fetch(`${API_URL}/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        
+        console.log(`Update response status: ${response.status}`);
+        console.log(`Update response ok: ${response.ok}`);
+        
+        if (response.ok) {
+          showMessage("Product updated successfully!", "success");
+        } else {
+          const errorData = await response.json();
+          console.log(`Update error data:`, errorData);
+          showMessage(errorData.message || "Failed to update product", "error");
+          return;
+        }
       } else {
-        await fetch(API_URL, {
+        console.log(`Attempting to add new product`);
+        console.log(`POST URL: ${API_URL}`);
+        console.log(`Payload:`, payload);
+        
+        const response = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
+        
+        console.log(`Add response status: ${response.status}`);
+        console.log(`Add response ok: ${response.ok}`);
+        
+        if (response.ok) {
+          showMessage("Product added successfully!", "success");
+        } else {
+          const errorData = await response.json();
+          console.log(`Add error data:`, errorData);
+          showMessage(errorData.message || "Failed to add product", "error");
+          return;
+        }
       }
+      
       refreshProducts();
       setForm({ sku: "", name: "", quantity: 0, price: 0 });
       setEditingId(null);
-    } catch (_) {
-      setError("Save failed. Please try again.");
+    } catch (error) {
+      showMessage("Network error. Please check your connection and try again.", "error");
     }
   };
 
   const handleEdit = (product) => {
     setForm({ sku: product.sku || "", name: product.name || "", quantity: product.quantity || 0, price: product.price || 0 });
     setEditingId(product.id);
+    setError("");
+    setSuccessMessage("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    try {
+      console.log(`Attempting to delete product with ID: ${id}`);
+      console.log(`DELETE URL: ${API_URL}/${id}`);
+      
+      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      
+      console.log(`Response status: ${response.status}`);
+      console.log(`Response ok: ${response.ok}`);
+      
+      if (response.ok) {
+        showMessage("Product deleted successfully!", "success");
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        const errorData = await response.json();
+        console.log(`Error data:`, errorData);
+        showMessage(errorData.message || "Failed to delete product", "error");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      showMessage("Network error. Please check your connection and try again.", "error");
+    }
   };
 
   const filtered = useMemo(() => {
@@ -117,6 +191,37 @@ export default function InventoryPage() {
           </div>
         </div>
 
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-green-800">{successMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-red-800">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="rounded-xl border border-indigo-100 bg-white p-4 shadow-sm">
@@ -148,6 +253,8 @@ export default function InventoryPage() {
                 onClick={() => {
                   setEditingId(null);
                   setForm({ sku: "", name: "", quantity: 0, price: 0 });
+                  setError("");
+                  setSuccessMessage("");
                 }}
               >
                 Cancel
