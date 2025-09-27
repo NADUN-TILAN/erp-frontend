@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import NavBar from "../components/NavBar";
 
-const API_URL = "http://localhost:5131/api/users";
+const API_URL = "http://localhost:5000/api/users";
 
 export default function UserPage() {
   const { data: session } = useSession();

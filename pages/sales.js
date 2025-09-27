@@ -10,7 +10,7 @@ export default function SalesPage() {
   const [to, setTo] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5002/api/orders")
+    fetch("http://localhost:5003/api/orders")
       .then((r) => r.json())
       .then((d) => setOrders(Array.isArray(d) ? d : []))
       .catch(() => setOrders([]));

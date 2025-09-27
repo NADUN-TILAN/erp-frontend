@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useMemo, useState } from "react";
 import NavBar from "../components/NavBar";
 
-const API_URL = "http://localhost:80/api/product";
+const API_URL = "http://localhost:5001/api/product";
 
 export default function InventoryPage() {
   const { data: session } = useSession();
