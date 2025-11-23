@@ -18,7 +18,16 @@ export default function Profile() {
     // Handle profile update logic here
   };
 
-  if (!session) return null;
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="bg-white/90 rounded-2xl shadow-xl p-10 w-full max-w-md text-center">
+          <h1 className="text-2xl font-extrabold text-indigo-700 mb-2">Please sign in</h1>
+          <p className="text-gray-500">You need to be logged in to view your profile.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
